@@ -1,6 +1,6 @@
 import express from 'express'
-import routes from './src/routes'
-import middlewares from './src/routes/middlewares'
+import routes from './routes'
+import middlewares from './routes/middlewares'
 import dotenv from 'dotenv'
 
 dotenv.config()
