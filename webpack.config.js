@@ -1,18 +1,15 @@
-const root = require('app-root-path').path
+const path = require('path')
+
 module.exports = {
-    entry: `${root}/index.js`,
-    target: 'node',
-    mode: 'production',
-    externals: [
-        /^[a-z\-0-9]+$/ // Ignore node_modules folder
-    ],
-    output: {
-        filename: 'index.js', // output file
-        path: `${root}/dist`,
-        libraryTarget: "commonjs"
-    },
-    resolve: {
-        extensions: ['.js'],
-        modules: ['node_modules', `${root}/src`]
-    }
-} 
+  entry: './src/index.js',
+  target: 'node',
+  mode: 'production',
+  externals: [
+    /^[a-z\-0-9]+$/ // Ignore node_modules folder
+  ],
+  output: {
+    filename: 'index.js',
+    path: path.resolve(__dirname, 'dist'),
+    libraryTarget: "commonjs"
+  }
+}
