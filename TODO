@@ -1,0 +1,11 @@
+Server E-application TODO
+
+Todo:
+  Parse response:
+    ✔ Parse entries @done(19-09-27 22:29)
+    ✔ Parse nodes types @done(19-09-27 22:30)
+    ✔ Parse relations types @done(19-09-27 22:30)
+    ✔ Parse outcoming relations @started(19-09-27 22:34) @done(19-09-29 11:34) @lasted(1d13h35s)
+  ☐ Add Partial request
+  ✔ Set up a cache for the request @started(19-09-27 22:42) @done(19-09-29 11:34) @lasted(1d12h52m44s)
+
