@@ -2,13 +2,12 @@ Server E-application TODO
 
 Todo:
   Parse response:
-    ☐ Parse definitions @started(19-10-03 13:21)
-    Get definition from refine relation on the relation 4 (Il y a moins de données)
+  ✔ Parse definitions @started(19-10-03 13:21) @done(19-10-07 18:31) @lasted(4d5h10m21s)
+  ✔ Get definition from refine relation on the relation 4 (Il y a moins de données) @done(19-10-07 18:31)
     ✔ Parse relations types @started(19-10-01 11:06) @done(19-10-01 11:47) @lasted(41m12s)
     ✔ Parse outcoming relations @started(19-10-01 11:07) @done(19-10-01 11:47) @lasted(40m13s)
   ☐ Add Partial request
   Cache for request:
     ✔ If the request is in the cache send the cache @done(19-10-01 12:08)
-    ☐ If all relations is ask add all relations to the cache
-    ☐ If a single relation is ask return the relation and save all relations in the cache (PREFETCH)
+    ☐ Prefetch next request
 
