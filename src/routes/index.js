@@ -1,11 +1,13 @@
 import request from 'request'
+import async_request from '../await-request'
 import iconv from 'iconv-lite'
 import fs from 'fs'
+import { cpus } from 'os'
 
 const CACHE = false // Activate cache
 
 export default app => {
-  app.get('/:word/definition', (req, res) => get_def(req, res))
+  app.get('/:word/definitions', (req, res) => get_def(req, res))
   app.get('/:word/:rel', (req, res) => get_word(req, res))
 }
 
@@ -38,21 +40,38 @@ function get_word(req, res) {
   }
 }
 
-function get_def(req, res) {
-  let filename = `${req.params.word}_definition`
+async function get_def(req, res) {
+  let filename = `${req.params.word}_definitions`
   try {
     if (fs.existsSync(`cache/${filename}.json`) && CACHE) {
       fs.readFile(`cache/${filename}.json`, 'utf8', (err, data) => {
         res.send({ status: 'success', data: JSON.parse(data) })
       })
     } else {
-      request.get({ encoding: null, uri: `http://www.jeuxdemots.org/rezo-dump.php?gotermsubmit=Chercher&gotermrel=${req.params.word}&rel=4` }, (error, response, body) => {
+      let relations = []
+      // REQUEST to get refinment relations
+      let data = await async_request({ encoding: null, uri: `http://www.jeuxdemots.org/rezo-dump.php?gotermsubmit=Chercher&gotermrel=${req.params.word}&rel=1` })
+      relations = parse_response(data).outcoming_relations
+      // REQUEST TO GET DEFINITIONS
+      request.get({ encoding: null, uri: `http://www.jeuxdemots.org/rezo-dump.php?gotermsubmit=Chercher&gotermrel=${req.params.word}&rel=4` }, async (error, response, body) => {
         if (response.statusCode == 200) {
           // Convert ISO to utf8
           let utf8_string = iconv.decode(new Buffer(body), "ISO-8859-1")
-          let data = parse_definition(utf8_string)
+          let data = parse_definitions(utf8_string)
 
           if (data) {
+            if(data.definitions.length == 0) {
+              // wait for the refinment request is finish
+              if(relations.length > 0) {
+                for (let i = 0; i < relations.length; i++) {
+                  const rel = relations[i];
+                  let rel_res = await async_request({ encoding: null, uri: `http://www.jeuxdemots.org/rezo-dump.php?gotermsubmit=Chercher&gotermrel=${rel.split(';')[1]}&rel=4` })
+                  let def = parse_definitions(rel_res).definitions
+                  data.definitions.push(...def)
+
+                }
+              }
+            }
             res.json({ status: 'success', data })
             save_cache(filename, data)
           } else
@@ -167,7 +186,7 @@ function parse_relations(relations, entries) {
   return relations_obj
 }
 
-function parse_definition(str) {
+function parse_definitions(str) {
   let def = str.substring(str.indexOf('<def>') + 5, str.indexOf('</def>')).replace(/<br \/>/g, '').replace(/\n/g, '')
   let clean_def = []
   if(def.trim() != '') {
@@ -177,5 +196,5 @@ function parse_definition(str) {
       if(d != '') clean_def.push(d)
     })
   } else def = []
-  return {definition: clean_def}
+  return {definitions: clean_def}
 }
