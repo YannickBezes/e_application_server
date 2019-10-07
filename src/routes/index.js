@@ -166,13 +166,14 @@ function parse_relations(relations, entries) {
 }
 
 function parse_definition(str) {
-  let def = str.substring(str.indexOf('<def>') + 5, str.indexOf('</def>')).replace(/<br \/>/g, '')
+  let def = str.substring(str.indexOf('<def>') + 5, str.indexOf('</def>')).replace(/<br \/>/g, '').replace(/\n/g, '')
+  let clean_def = []
   if(def.trim() != '') {
-    def = def.trim().split('\n')
-    def = {definition: def.map(el => {
-      return el.replace(/\d+\. /, '').trim()
-    })}
+    def = def.trim().split(/\d+\./)
+    def.forEach(el => {
+      let d = el.replace(/\d+\. /, '').replace(/\s{2,}/g, ' ').trim()
+      if(d != '') clean_def.push(d)
+    })
   } else def = []
-
-  return def
+  return {definition: clean_def}
 }
