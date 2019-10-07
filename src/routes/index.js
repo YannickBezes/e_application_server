@@ -140,7 +140,7 @@ function parse(str, type) {
   }
 
   let trash = str.substring(str.indexOf(start) + start.length, str.indexOf(end));
-  trash = str.match(new RegExp(`${regex};.+\n`, 'g'))
+  trash = trash.match(new RegExp(`${regex};.+\n`, 'g'))
   let clean = []
   if (trash) {
     trash.forEach(el => {
