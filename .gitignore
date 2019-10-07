@@ -39,7 +39,7 @@ testem.log
 .DS_Store
 Thumbs.db
 
-pacakage-lock.json
+package-lock.json
 yarn.lock
 yarn-error.log
 .env

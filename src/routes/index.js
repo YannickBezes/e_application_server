@@ -2,17 +2,18 @@ import request from 'request'
 import iconv from 'iconv-lite'
 import fs from 'fs'
 
-const CACHE = true // Activate cache
+const CACHE = false // Activate cache
 
 export default app => {
-  app.get('/:word/definition', (req, res) => get_def(req, res)) 
+  app.get('/:word/definition', (req, res) => get_def(req, res))
   app.get('/:word/:rel', (req, res) => get_word(req, res))
 }
 
 function get_word(req, res) {
+  let filename = `${req.params.word}_${req.params.rel}`
   try {
-    if (fs.existsSync(`cache/${req.params.word}_${req.params.rel}.json`) && CACHE) {
-      fs.readFile(`cache/${req.params.word}_${req.params.rel}.json`, 'utf8', (err, data) => {
+    if (fs.existsSync(`cache/${filename}.json`) && CACHE) {
+      fs.readFile(`cache/${filename}.json`, 'utf8', (err, data) => {
         res.send({ status: 'success', data: JSON.parse(data) })
       })
     } else {
@@ -21,13 +22,13 @@ function get_word(req, res) {
           // Convert ISO to utf8
           let utf8_string = iconv.decode(new Buffer(body), "ISO-8859-1")
           let data = parse_response(utf8_string)
-          
+
           if (data) {
             res.json({ status: 'success', data })
-            save_cache(`${req.params.word}_${req.params.rel}`, data)
+            save_cache(filename, data)
           } else
             res.json({ status: 'failed', data: null, message: 'Not found' })
-          
+
         } else
           res.json({ status: 'failed', data: null, message: 'Not found' })
       })
@@ -38,9 +39,10 @@ function get_word(req, res) {
 }
 
 function get_def(req, res) {
+  let filename = `${req.params.word}_definition`
   try {
-    if (fs.existsSync(`cache/${req.params.word}_def.json`) && CACHE) {
-      fs.readFile(`cache/${req.params.word}_def.json`, 'utf8', (err, data) => {
+    if (fs.existsSync(`cache/${filename}.json`) && CACHE) {
+      fs.readFile(`cache/${filename}.json`, 'utf8', (err, data) => {
         res.send({ status: 'success', data: JSON.parse(data) })
       })
     } else {
@@ -49,13 +51,13 @@ function get_def(req, res) {
           // Convert ISO to utf8
           let utf8_string = iconv.decode(new Buffer(body), "ISO-8859-1")
           let data = parse_definition(utf8_string)
-          
+
           if (data) {
             res.json({ status: 'success', data })
-            save_cache(`${req.params.word}_def`, data)
+            save_cache(filename, data)
           } else
             res.json({ status: 'failed', data: null, message: 'Not found' })
-          
+
         } else
           res.json({ status: 'failed', data: null, message: 'Not found' })
       })
@@ -97,7 +99,7 @@ function parse_response(d) {
     incomming_relations.sort((a,b) => { // Sort
       return parseInt(b.split(';')[2]) - parseInt(a.split(';')[2])
     })
- 
+
     return { outcoming_relations, incomming_relations }
   }
   return null
