@@ -10,6 +10,7 @@ export default class Word {
   static get_word(req, res) {
     let filename = `${req.params.word}_${req.params.rel}`
     try {
+      // Check if the file is already on the cache
       if (fs.existsSync(`cache/${filename}.json`) && CACHE) {
         fs.readFile(`cache/${filename}.json`, 'utf8', (err, data) => {
           if (!err)
@@ -60,6 +61,7 @@ export default class Word {
   static async get_def(req, res) {
     let filename = `${req.params.word}_definitions`
     try {
+      // Check if the file is already on the cache
       if (fs.existsSync(`cache/${filename}.json`) && CACHE) {
         fs.readFile(`cache/${filename}.json`, 'utf8', (err, data) => {
           if (!err)
