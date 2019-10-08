@@ -11,3 +11,5 @@ Todo:
     ✔ If the request is in the cache send the cache @done(19-10-01 12:08)
     ☐ Prefetch next request
 
+Client;
+    Add  a prefetch of request on hover of the button research or on links
