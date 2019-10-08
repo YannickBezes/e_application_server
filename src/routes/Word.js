@@ -3,7 +3,7 @@ import fs from 'fs'
 import request from 'request'
 import await_request from '../await-request'
 
-const CACHE = false // Activate cache
+const CACHE = true // Activate cache
 
 export default class Word {
 
@@ -53,7 +53,7 @@ export default class Word {
       res.json({
         status: 'failed',
         data: null,
-        message: JSON.stringify(err)
+        message: err.toString()
       })
     }
   }
@@ -77,7 +77,9 @@ export default class Word {
           encoding: null,
           uri: `http://www.jeuxdemots.org/rezo-dump.php?gotermsubmit=Chercher&gotermrel=${req.params.word}&rel=1`
         })
-        relations = this.parse_response(data).outcoming_relations
+        let parsed_data = this.parse_response(data)
+        relations = parsed_data ? parsed_data.outcoming_relations : []
+
         // REQUEST TO GET DEFINITIONS
         request.get({
           encoding: null,
@@ -89,22 +91,24 @@ export default class Word {
             let data = this.parse_definitions(utf8_string)
 
             if (data) {
-              if (data.definitions.length == 0) {
-                for (let i = 0; i < relations.length; i++) {
-                  const rel = relations[i];
-                  let rel_res = await await_request({
-                    encoding: null,
-                    uri: `http://www.jeuxdemots.org/rezo-dump.php?gotermsubmit=Chercher&gotermrel=${rel.split(';')[1]}&rel=4`
-                  })
-                  let def = this.parse_definitions(rel_res).definitions
-                  data.definitions.push(...def)
-                }
+              for (let i = 0; i < relations.length; i++) {
+                const rel = relations[i];
+                let rel_res = await await_request({
+                  encoding: null,
+                  uri: `http://www.jeuxdemots.org/rezo-dump.php?gotermsubmit=Chercher&gotermrel=${rel.split(';')[1]}&rel=4`
+                })
+                let def = this.parse_definitions(rel_res).definitions
+                data.definitions.push(...def)
               }
-              res.json({
-                status: 'success',
-                data
-              })
-              this.save_cache(filename, data)
+              if (data.definitions.length > 0) {
+                res.json({
+                  status: 'success',
+                  data
+                })
+                this.save_cache(filename, data)
+              } else {
+                res.json({ status: 'failed', data: null, message: 'Not found' })
+              }
             } else
               res.json({
                 status: 'failed',
@@ -121,7 +125,7 @@ export default class Word {
         })
       }
     } catch (error) {
-      res.json({ status: 'failed', data: null, message: JSON.stringify(error) })
+      res.json({ status: 'failed', data: null, message: error.toString() })
     }
   }
 
@@ -151,16 +155,16 @@ export default class Word {
         return parseInt(b.split(';')[2]) - parseInt(a.split(';')[2])
       })
 
-      // Get the incomming relations
-      let incomming_relations = this.parse(str, 'incomming_relations')
-      incomming_relations = this.parse_relations(incomming_relations, entries_dic)
-      incomming_relations.sort((a, b) => { // Sort
+      // Get the incoming relations
+      let incoming_relations = this.parse(str, 'incoming_relations')
+      incoming_relations = this.parse_relations(incoming_relations, entries_dic)
+      incoming_relations.sort((a, b) => { // Sort
         return parseInt(b.split(';')[2]) - parseInt(a.split(';')[2])
       })
 
       return {
         outcoming_relations,
-        incomming_relations
+        incoming_relations
       }
     }
     return null
@@ -193,7 +197,7 @@ export default class Word {
         regex = "r"
         break
 
-      case "incomming_relations":
+      case "incoming_relations":
         start = "// les relations entrantes : r;rid;node1;node2;type;w "
         end = "// END"
         regex = "r"
