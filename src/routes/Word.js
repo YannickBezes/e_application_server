@@ -2,8 +2,9 @@ import iconv from 'iconv-lite'
 import fs from 'fs'
 import request from 'request'
 import await_request from '../await-request'
+import { cpus } from 'os'
 
-const CACHE = true // Activate cache
+const CACHE = false // Activate cache
 
 export default class Word {
 
@@ -34,6 +35,7 @@ export default class Word {
                 data
               })
               this.save_cache(filename, data)
+              this.add_weight(req.params.word)
             } else
               res.json({
                 status: 'failed',
@@ -107,7 +109,11 @@ export default class Word {
                 })
                 this.save_cache(filename, data)
               } else {
-                res.json({ status: 'failed', data: null, message: 'Not found' })
+                res.json({
+                  status: 'failed',
+                  data: null,
+                  message: 'Not found'
+                })
               }
             } else
               res.json({
@@ -125,7 +131,11 @@ export default class Word {
         })
       }
     } catch (error) {
-      res.json({ status: 'failed', data: null, message: error.toString() })
+      res.json({
+        status: 'failed',
+        data: null,
+        message: error.toString()
+      })
     }
   }
 
@@ -217,7 +227,7 @@ export default class Word {
   }
 
   static save_cache(name, data) {
-    fs.writeFile(`cache/${name}.json`, JSON.stringify(data), function(err) {
+    fs.writeFile(`cache/${name}.json`, JSON.stringify(data), function (err) {
       if (err) console.error(err)
       console.log('File is created successfully.') // DEBUG
     })
@@ -245,5 +255,21 @@ export default class Word {
     return {
       definitions: clean_def
     }
+  }
+
+  static add_weight(word) {
+    let buf = fs.readFileSync(`dict.txt`, 'utf8')
+    let words = buf.split(',')
+
+    words = words.map(v => {
+      if(v.split(';')[0] === word)
+        return `${v.split(';')[0]};${parseInt(v.split(';')[1]) + 1}`
+      return v
+    })
+
+    fs.writeFile('dict.txt', words, 'utf8', err => {
+      if(!err)
+        console.log('File content saved')
+    })
   }
 }
