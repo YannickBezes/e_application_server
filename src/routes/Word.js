@@ -229,7 +229,7 @@ export default class Word {
   static save_cache(name, data) {
     fs.writeFile(`cache/${name}.json`, JSON.stringify(data), function (err) {
       if (err) console.error(err)
-      console.log('File is created successfully.') // DEBUG
+      console.log('File is created successfully.') // DEBUG - Delete this line on prod
     })
   }
 
