@@ -2,9 +2,8 @@ import iconv from 'iconv-lite'
 import fs from 'fs'
 import request from 'request'
 import await_request from '../await-request'
-import { cpus } from 'os'
 
-const CACHE = false // Activate cache
+const CACHE = true // Activate cache
 
 export default class Word {
 
@@ -14,11 +13,17 @@ export default class Word {
       // Check if the file is already on the cache
       if (fs.existsSync(`cache/${filename}.json`) && CACHE) {
         fs.readFile(`cache/${filename}.json`, 'utf8', (err, data) => {
-          if (!err)
+          if (!err) {
+            data = JSON.parse(data)
+            if(req.params.limit) {
+              data.incoming_relations = data.incoming_relations.slice(0, req.params.limit)
+              data.outcoming_relations = data.outcoming_relations.slice(0, req.params.limit)
+            }
             res.send({
               status: 'success',
-              data: JSON.parse(data)
+              data: data
             })
+          }
         })
       } else {
         request.get({
@@ -30,9 +35,16 @@ export default class Word {
             let utf8_string = iconv.decode(new Buffer(body), "ISO-8859-1")
             let data = this.parse_response(utf8_string)
             if (data) {
+              let limit_data = {}
+              if(req.params.limit) {
+                limit_data.incoming_relations = data.incoming_relations.slice(0, req.params.limit)
+                limit_data.outcoming_relations = data.outcoming_relations.slice(0, req.params.limit)
+              } else {
+                limit_data = data
+              }
               res.json({
                 status: 'success',
-                data
+                data: limit_data
               })
               this.save_cache(filename, data)
               this.add_weight(req.params.word)
