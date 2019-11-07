@@ -114,19 +114,11 @@ export default class Word {
                 let def = this.parse_definitions(rel_res).definitions
                 data.definitions.push(...def)
               }
-              if (data.definitions.length > 0) {
                 res.json({
                   status: 'success',
                   data
                 })
                 this.save_cache(filename, data)
-              } else {
-                res.json({
-                  status: 'failed',
-                  data: null,
-                  message: 'Not found'
-                })
-              }
             } else
               res.json({
                 status: 'failed',
