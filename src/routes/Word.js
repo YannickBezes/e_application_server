@@ -272,8 +272,8 @@ export default class Word {
     })
 
     fs.writeFile('dict.txt', words, 'utf8', err => {
-      if(!err)
-        console.log('File content saved')
+      if(err)
+        console.error(err)
     })
   }
 }
