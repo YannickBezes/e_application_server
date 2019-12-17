@@ -15,14 +15,11 @@ export default class Word {
         fs.readFile(`cache/${filename}.json`, 'utf8', (err, data) => {
           if (!err) {
             data = JSON.parse(data)
-            if(req.params.limit) {
+            if (req.params.limit) {
               data.incoming_relations = data.incoming_relations.slice(0, req.params.limit)
               data.outcoming_relations = data.outcoming_relations.slice(0, req.params.limit)
             }
-            res.send({
-              status: 'success',
-              data: data
-            })
+            res.send({ status: 'success', data: data })
           }
         })
       } else {
@@ -36,39 +33,25 @@ export default class Word {
             let data = this.parse_response(utf8_string)
             if (data) {
               let limit_data = {}
-              if(req.params.limit) {
+              if (req.params.limit) { // Check if there is a limit in the request
                 limit_data.incoming_relations = data.incoming_relations.slice(0, req.params.limit)
                 limit_data.outcoming_relations = data.outcoming_relations.slice(0, req.params.limit)
               } else {
                 limit_data = data
               }
-              res.json({
-                status: 'success',
-                data: limit_data
-              })
+              res.json({ status: 'success', data: limit_data })
+
               this.save_cache(filename, data)
               this.add_weight(req.params.word)
             } else
-              res.json({
-                status: 'failed',
-                data: null,
-                message: 'Not found'
-              })
+              res.json({ status: 'failed', data: null, message: 'Not found' })
 
           } else
-            res.json({
-              status: 'failed',
-              data: null,
-              message: 'Not found'
-            })
+            res.json({ status: 'failed', data: null, message: 'Not found' })
         })
       }
     } catch (err) {
-      res.json({
-        status: 'failed',
-        data: null,
-        message: err.toString()
-      })
+      res.json({ status: 'failed', data: null, message: err.toString() })
     }
   }
 
@@ -79,10 +62,7 @@ export default class Word {
       if (fs.existsSync(`cache/${filename}.json`) && CACHE) {
         fs.readFile(`cache/${filename}.json`, 'utf8', (err, data) => {
           if (!err)
-            res.send({
-              status: 'success',
-              data: JSON.parse(data)
-            })
+            res.send({ status: 'success', data: JSON.parse(data) })
         })
       } else {
         let relations = []
@@ -114,32 +94,16 @@ export default class Word {
                 let def = this.parse_definitions(rel_res).definitions
                 data.definitions.push(...def)
               }
-                res.json({
-                  status: 'success',
-                  data
-                })
-                this.save_cache(filename, data)
+              res.json({ status: 'success', data })
+              this.save_cache(filename, data)
             } else
-              res.json({
-                status: 'failed',
-                data: null,
-                message: 'Not found'
-              })
-
+              res.json({ status: 'failed', data: null, message: 'Not found' })
           } else
-            res.json({
-              status: 'failed',
-              data: null,
-              message: 'Not found'
-            })
+            res.json({ status: 'failed', data: null, message: 'Not found' })
         })
       }
     } catch (error) {
-      res.json({
-        status: 'failed',
-        data: null,
-        message: error.toString()
-      })
+      res.json({ status: 'failed', data: null, message: error.toString() })
     }
   }
 
@@ -153,8 +117,7 @@ export default class Word {
       let entries = this.parse(str, 'entries')
       let entries_dic = {}
       entries.forEach(el => {
-
-        let name = el.split(';')[2].substring(1, el.split(';')[2].length - 1)
+        let name = el.split(';')[2].substring(1, el.split(';')[2].length - 1) // Parse name
         if (/>/.test(name)) name = el.split(';')[5].substring(1, el.split(';')[5].length - 1)
         entries_dic[el.split(';')[1]] = name
       })
@@ -173,13 +136,10 @@ export default class Word {
       let incoming_relations = this.parse(str, 'incoming_relations')
       incoming_relations = this.parse_relations(incoming_relations, entries_dic, true)
       incoming_relations.sort((a, b) => { // Sort
-        return  Math.abs(parseInt(b.split(';')[2])) - Math.abs(parseInt(a.split(';')[2]))
+        return Math.abs(parseInt(b.split(';')[2])) - Math.abs(parseInt(a.split(';')[2]))
       })
 
-      return {
-        outcoming_relations,
-        incoming_relations
-      }
+      return { outcoming_relations, incoming_relations }
     }
     return null
   }
@@ -237,21 +197,16 @@ export default class Word {
     })
   }
 
-  static parse_relations(relations, entries, incomming=false) {
+  static parse_relations(relations, entries, incomming = false) {
     let relations_obj = []
-    if(incomming) {
-      relations.forEach(el => {
-        if(!/^_\w+/.test(entries[el.split(';')[2]]))
-          relations_obj.push(`${el.split(';')[4]};${entries[el.split(';')[2]]};${el.split(';')[5]}`)
 
-      })
-    } else {
-      relations.forEach(el => {
-        if(!/^_\w+/.test(entries[el.split(';')[3]]))
-          relations_obj.push(`${el.split(';')[4]};${entries[el.split(';')[3]]};${el.split(';')[5]}`)
-      })
-    }
-
+    relations.forEach(el => {
+      if (!/^_\w+/.test(entries[el.split(';')[2]])) {  // if the word don't with "_" we can add it
+        let parsed_relation = this.split_relation(el, entries)
+        
+        relations_obj.push(`${parsed_relation.type};${incomming ? parsed_relation.node_1: parsed_relation.node_2};${parsed_relation.weight}`)
+      }
+    })
     return relations_obj
   }
 
@@ -276,14 +231,29 @@ export default class Word {
     let words = buf.split(',')
 
     words = words.map(v => {
-      if(v.split(';')[0] === word)
+      if (v.split(';')[0] === word)
         return `${v.split(';')[0]};${parseInt(v.split(';')[1]) + 1}`
       return v
     })
 
     fs.writeFile('dict.txt', words, 'utf8', err => {
-      if(err)
+      if (err)
         console.error(err)
     })
+  }
+
+  static split_relation(relation, entries) {
+    let rel = {
+      r: relation.split(';')[0],
+      rid: relation.split(';')[1],
+      node_1: entries[relation.split(';')[2]],
+      node_2: entries[relation.split(';')[3]],
+      type: relation.split(';')[4],
+      weight: relation.split(';')[5]
+    }
+    if(/^=/.test(rel.node_1)) rel.node_1 = rel.node_1.slice(1, rel.node_1.length - 2)
+    if(/^=/.test(rel.node_2)) rel.node_2 = rel.node_2.slice(1, rel.node_2.length - 2)
+
+    return rel
   }
 }
