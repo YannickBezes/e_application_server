@@ -166,14 +166,14 @@ export default class Word {
       let outcoming_relations = this.parse(str, 'outcomming_relations')
       outcoming_relations = this.parse_relations(outcoming_relations, entries_dic)
       outcoming_relations.sort((a, b) => { // Sort
-        return parseInt(b.split(';')[2]) - parseInt(a.split(';')[2])
+        return Math.abs(parseInt(b.split(';')[2])) - Math.abs(parseInt(a.split(';')[2]))
       })
 
       // Get the incoming relations
       let incoming_relations = this.parse(str, 'incoming_relations')
-      incoming_relations = this.parse_relations(incoming_relations, entries_dic)
+      incoming_relations = this.parse_relations(incoming_relations, entries_dic, true)
       incoming_relations.sort((a, b) => { // Sort
-        return parseInt(b.split(';')[2]) - parseInt(a.split(';')[2])
+        return  Math.abs(parseInt(b.split(';')[2])) - Math.abs(parseInt(a.split(';')[2]))
       })
 
       return {
@@ -237,22 +237,32 @@ export default class Word {
     })
   }
 
-  static parse_relations(relations, entries) {
+  static parse_relations(relations, entries, incomming=false) {
     let relations_obj = []
-    relations.forEach(el => {
-      relations_obj.push(`${el.split(';')[4]};${entries[el.split(';')[3]]};${el.split(';')[5]}`)
-    })
+    if(incomming) {
+      relations.forEach(el => {
+        if(!/^_\w+/.test(entries[el.split(';')[2]]))
+          relations_obj.push(`${el.split(';')[4]};${entries[el.split(';')[2]]};${el.split(';')[5]}`)
+
+      })
+    } else {
+      relations.forEach(el => {
+        if(!/^_\w+/.test(entries[el.split(';')[3]]))
+          relations_obj.push(`${el.split(';')[4]};${entries[el.split(';')[3]]};${el.split(';')[5]}`)
+      })
+    }
 
     return relations_obj
   }
 
   static parse_definitions(str) {
-    let def = str.substring(str.indexOf('<def>') + 5, str.indexOf('</def>')).replace(/<br \/>/g, '').replace(/\n/g, '')
+    let def = str.substring(str.indexOf('<def>') + 5, str.indexOf('</def>')).replace(/<br \/>/g, '')
     let clean_def = []
     if (def.trim() != '') {
-      def = def.trim().split(/\d+\./)
+      def = def.trim().split(/\n\d{1,3}\./)
+      def[0] = def[0].slice(3) // Cut first number
       def.forEach(el => {
-        let d = el.replace(/\d+\. /, '').replace(/\s{2,}/g, ' ').trim()
+        let d = el.replace(/\n\d{1,3}\. /, '').replace(/\s{2,}/g, ' ').trim()
         if (d != '') clean_def.push(d)
       })
     } else def = []

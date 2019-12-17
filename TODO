@@ -6,10 +6,13 @@ Todo:
   ✔ Get definition from refine relation on the relation 4 (Il y a moins de données) @done(19-10-07 18:31)
     ✔ Parse relations types @started(19-10-01 11:06) @done(19-10-01 11:47) @lasted(41m12s)
     ✔ Parse outcoming relations @started(19-10-01 11:07) @done(19-10-01 11:47) @lasted(40m13s)
-  ☐ Add Partial request
   Cache for request:
     ✔ If the request is in the cache send the cache @done(19-10-01 12:08)
-    ☐ Prefetch next request
 
-Client;
-    Add  a prefetch of request on hover of the button research or on links
+Client:
+    Hide Block on click
+    Add button "go to top"
+    Add different colors for incomming and outcoming relations
+    Add a second display in blocks (font-size by weight)
+    Word with a negative weight add red color
+    Parse relation (delete id relation, and weight add it to title)
