@@ -7,7 +7,8 @@
     "start": "npm-run-all --parallel watch:server watch:build",
     "build": "webpack --mode=production",
     "watch:build": "webpack --mode=development --watch",
-    "watch:server": "nodemon \"./dist/index.js\" --watch \"./dist\""
+    "watch:server": "nodemon \"./dist/index.js\" --watch \"./dist\"",
+    "clean": "node ./clear_cache.js"
   },
   "devDependencies": {
     "nodemon": "^1.19.2",
