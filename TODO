@@ -11,7 +11,7 @@ Todo:
 
 Client:
   ✔ Parse relation (delete id relation, and weight add it to title) @done(19-12-17 16:33)
-  ☐ Hide Block on click
+  ✔ Hide Block on click @done(19-12-17 19:47)
   ✔ Add button "go to top" @done(19-12-17 18:18)
   ✔ Add different colors for incomming and outcoming relations @done(19-12-17 16:42)
   ✔ Word with a negative weight add red color @done(19-12-17 16:33)
