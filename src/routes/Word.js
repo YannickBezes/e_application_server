@@ -201,9 +201,8 @@ export default class Word {
     let relations_obj = []
 
     relations.forEach(el => {
-      if (!/^_\w+/.test(entries[el.split(';')[2]])) {  // if the word don't with "_" we can add it
-        let parsed_relation = this.split_relation(el, entries)
-        
+      let parsed_relation = this.split_relation(el, entries)
+      if (!/^_\w+/.test(parsed_relation.node_1) && !/^_\w+/.test(parsed_relation.node_2)) {  // if the word don't with "_" we can add it
         relations_obj.push(`${parsed_relation.type};${incomming ? parsed_relation.node_1: parsed_relation.node_2};${parsed_relation.weight}`)
       }
     })
@@ -251,8 +250,8 @@ export default class Word {
       type: relation.split(';')[4],
       weight: relation.split(';')[5]
     }
-    if(/^=/.test(rel.node_1)) rel.node_1 = rel.node_1.slice(1, rel.node_1.length - 2)
-    if(/^=/.test(rel.node_2)) rel.node_2 = rel.node_2.slice(1, rel.node_2.length - 2)
+    if(/^=/.test(rel.node_1)) rel.node_1 = rel.node_1.slice(0, rel.node_1.length - 1)
+    if(/^=/.test(rel.node_2)) rel.node_2 = rel.node_2.slice(0, rel.node_2.length - 1)
 
     return rel
   }
