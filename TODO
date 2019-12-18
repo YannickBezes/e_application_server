@@ -15,4 +15,4 @@ Client:
   ✔ Add button "go to top" @done(19-12-17 18:18)
   ✔ Add different colors for incomming and outcoming relations @done(19-12-17 16:42)
   ✔ Word with a negative weight add red color @done(19-12-17 16:33)
-  ☐ Add a second display in blocks (font-size by weight)
+  ✔ Add a second display in blocks (font-size by weight) @done(19-12-18 14:48)
