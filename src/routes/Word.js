@@ -214,9 +214,8 @@ export default class Word {
     let clean_def = []
     if (def.trim() != '') {
       def = def.trim().split(/\n\d{1,3}\./)
-      def[0] = def[0].slice(3) // Cut first number
       def.forEach(el => {
-        let d = el.replace(/\n\d{1,3}\. /, '').replace(/\s{2,}/g, ' ').trim()
+        let d = el.replace(/\d{1,3}\. /, '').replace(/\s{2,}/g, ' ').trim()
         if (d != '') clean_def.push(d)
       })
     } else def = []
