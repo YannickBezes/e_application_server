@@ -18,7 +18,8 @@ export default class Autocomplete {
           return this.get_weight(b, word) - this.get_weight(a, word)
         })
         res.json({status: 'success', data: words.length > 10 ? words.map(el => el.split(';')[0]).splice(0, 10): words.map(el => el.split(';')[0]) })
-      }
+      } else
+        res.json({status: 'failed', data: null, message: err.message})
     })
   }
 
