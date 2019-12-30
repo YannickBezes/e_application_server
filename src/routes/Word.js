@@ -62,7 +62,7 @@ export default class Word {
       if (fs.existsSync(`cache/${filename}.json`) && CACHE) {
         fs.readFile(`cache/${filename}.json`, 'utf8', (err, data) => {
           if (!err)
-            res.send({ status: 'success', data: JSON.parse(data) })
+            res.send({ status: 'success', data: JSON.parse(data), message: 'from cache' })
         })
       } else {
         let relations = []
