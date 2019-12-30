@@ -9,6 +9,10 @@ export default app => {
 
   // DEFAULT request
   app.use((req, res) => {
-    res.json({status: "failed", data: null, message: 'Error can\'t find a endpoint for '+ req.method  + ' ' + req.url})
-})
+    res.json({
+      status: "failed",
+      data: null,
+      message: 'Error can\'t find a endpoint for ' + req.method + ' ' + req.url
+    })
+  })
 }
