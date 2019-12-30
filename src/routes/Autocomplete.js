@@ -1,5 +1,4 @@
 import fs from 'fs'
-import { cpus } from 'os'
 
 export default class Autocomplete {
   static get(req, res) {
